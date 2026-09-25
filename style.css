@@ -1,0 +1,630 @@
+/* ============================================
+   Dream of Void — Twin Peaks Red Room Edition
+   ============================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0505;
+  --bg-deep: #000;
+  --dark-red: #2a0606;
+  --blood: #8b1a1a;
+  --curtain-dark: #4a0808;
+  --curtain-mid: #8b1a1a;
+  --curtain-light: #c41e1e;
+  --curtain-hi: #e63946;
+  --neon-red: #ff2b2b;
+  --neon-dim: #c41818;
+  --bone: #f0ede4;
+  --bone-aged: #d8d4c8;
+  --black-tile: #050505;
+  --text: #c8a8a8;
+}
+
+html, body {
+  background: var(--bg-deep);
+  color: var(--text);
+  font-family: 'Vazirmatn', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body {
+  position: relative;
+  background: var(--bg-deep);
+}
+
+/* ============================================
+   کف شطرنجی تویین پیکس
+   ============================================ */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+
+  background-image:
+    repeating-conic-gradient(
+      var(--black-tile) 0deg 90deg,
+      var(--bone) 90deg 180deg
+    );
+  background-size: 90px 90px;
+  background-position: center;
+  background-repeat: repeat;
+
+  transform: perspective(600px) rotateX(48deg) scale(2.2);
+  transform-origin: center bottom;
+
+  -webkit-mask-image:
+    radial-gradient(ellipse 90% 70% at 50% 100%, #000 20%, transparent 75%),
+    linear-gradient(to top, #000 0%, transparent 60%);
+  mask-image:
+    radial-gradient(ellipse 90% 70% at 50% 100%, #000 20%, transparent 75%),
+    linear-gradient(to top, #000 0%, transparent 60%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+
+  opacity: 0.55;
+  animation: floorDrift 40s linear infinite;
+}
+
+@keyframes floorDrift {
+  from { background-position: center 0; }
+  to   { background-position: center 90px; }
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 110%, rgba(139,26,26,0.35), transparent 55%),
+    radial-gradient(ellipse at 50% 0%, rgba(255,43,43,0.08), transparent 50%),
+    linear-gradient(to top,
+      rgba(0,0,0,0.55) 0%,
+      rgba(0,0,0,0.88) 40%,
+      rgba(10,5,5,0.96) 100%);
+}
+
+/* ============================================
+   لایه‌های اتمسفر
+   ============================================ */
+.grain {
+  position: fixed;
+  inset: -50%;
+  pointer-events: none;
+  z-index: 90;
+  opacity: 0.14;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.2 0 0 0 0 0.2 0 0 0 0.4 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: grainShift 0.5s steps(3) infinite;
+  mix-blend-mode: overlay;
+}
+
+@keyframes grainShift {
+  0%   { transform: translate(0, 0); }
+  33%  { transform: translate(-2%, 1.5%); }
+  66%  { transform: translate(1.5%, -2%); }
+  100% { transform: translate(0, 0); }
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 91;
+  background: radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,0.88) 100%);
+  mix-blend-mode: multiply;
+}
+
+.fog {
+  position: fixed;
+  inset: -20%;
+  pointer-events: none;
+  z-index: 5;
+  background:
+    radial-gradient(circle at 30% 40%, rgba(255,43,43,0.07), transparent 40%),
+    radial-gradient(circle at 70% 60%, rgba(139,26,26,0.22), transparent 45%);
+  animation: fogDrift 35s ease-in-out infinite alternate;
+  filter: blur(50px);
+}
+
+@keyframes fogDrift {
+  from { transform: translate(-2%, -1%) scale(1); }
+  to   { transform: translate(2%, 1%) scale(1.08); }
+}
+
+.scanlines {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 92;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,43,43,0.015) 0px,
+    rgba(255,43,43,0.015) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.7;
+  animation: scanMove 10s linear infinite;
+}
+
+@keyframes scanMove {
+  from { background-position-y: 0; }
+  to   { background-position-y: 60px; }
+}
+
+/* ============================================
+   چشم‌های شناور
+   ============================================ */
+.floating-eye {
+  position: fixed;
+  width: 36px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, var(--bone) 0%, var(--neon-red) 35%, var(--dark-red) 75%);
+  box-shadow: 0 0 25px rgba(255,43,43,0.6), 0 0 50px rgba(255,43,43,0.25);
+  opacity: 0.14;
+  pointer-events: none;
+  z-index: 4;
+  filter: blur(1.5px);
+  animation: eyeFloat 25s ease-in-out infinite, blink 8s ease-in-out infinite;
+}
+
+.eye-1 { top: 22%; right: 8%;  animation-delay: 0s, 0s; }
+.eye-2 { top: 65%; left: 6%;   animation-delay: -8s, -3s; }
+.eye-3 { top: 45%; right: 45%; animation-delay: -15s, -5s; }
+
+@keyframes eyeFloat {
+  0%, 100% { transform: translate(0, 0) rotate(-5deg); }
+  25%      { transform: translate(-25px, 15px) rotate(5deg); }
+  50%      { transform: translate(15px, -25px) rotate(-3deg); }
+  75%      { transform: translate(-12px, -12px) rotate(8deg); }
+}
+
+@keyframes blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95%           { transform: scaleY(0.1); }
+}
+
+/* ============================================
+   عنوان
+   ============================================ */
+.hero {
+  text-align: center;
+  padding: 70px 20px 50px;
+  position: relative;
+  z-index: 10;
+}
+
+.title {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: clamp(1.4rem, 4vw, 2.6rem);
+  font-weight: 300;
+  letter-spacing: 6px;
+  color: var(--bone-aged);
+  display: inline-block;
+  position: relative;
+  text-transform: uppercase;
+  animation:
+    titleFlicker 7s ease-in-out infinite,
+    titleIn 2.5s cubic-bezier(.2,.8,.2,1) both;
+  text-shadow:
+    0 0 8px var(--neon-red),
+    0 0 20px var(--neon-dim),
+    0 0 40px rgba(255,43,43,0.4),
+    0 0 80px rgba(255,43,43,0.15);
+}
+
+.title::before,
+.title::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  color: var(--bone-aged);
+  pointer-events: none;
+  font-family: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+
+.title::before {
+  color: rgba(255,43,43,0.75);
+  animation: glitchA 5s infinite;
+  mix-blend-mode: screen;
+}
+
+.title::after {
+  color: rgba(200,20,20,0.55);
+  animation: glitchB 5s infinite;
+  mix-blend-mode: screen;
+}
+
+@keyframes glitchA {
+  0%, 88%, 100% { transform: translate(0, 0); opacity: 0; }
+  90%           { transform: translate(-2px, 1px); opacity: 0.8; }
+  93%           { transform: translate(1px, -2px); opacity: 0.6; }
+  96%           { transform: translate(-1px, 0); opacity: 0.7; }
+}
+
+@keyframes glitchB {
+  0%, 85%, 100% { transform: translate(0, 0); opacity: 0; }
+  88%           { transform: translate(2px, -1px); opacity: 0.7; }
+  91%           { transform: translate(-1px, 2px); opacity: 0.5; }
+  94%           { transform: translate(1px, 1px); opacity: 0.6; }
+}
+
+@keyframes titleIn {
+  from { opacity: 0; letter-spacing: 20px; filter: blur(15px); }
+  to   { opacity: 1; letter-spacing: 6px; filter: blur(0); }
+}
+
+@keyframes titleFlicker {
+  0%, 100% { opacity: 1; }
+  45%      { opacity: 1; }
+  46%      { opacity: 0.3; }
+  47%      { opacity: 1; }
+  70%      { opacity: 0.6; }
+  71%      { opacity: 1; }
+}
+
+/* ============================================
+   گالری
+   ============================================ */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 55px 40px;
+  padding: 40px 6vw 120px;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 10;
+  perspective: 1200px;
+}
+
+/* ============================================
+   کارت — بدون پاسپارتو
+   ============================================ */
+.card {
+  position: relative;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(60px) rotate(var(--rot, -2deg)) scale(0.92);
+  animation: cardWake 1.4s cubic-bezier(.2,.8,.2,1) forwards;
+  transform-style: preserve-3d;
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow:
+    0 25px 60px rgba(0,0,0,0.85),
+    0 0 0 1px rgba(139,26,26,0.35),
+    0 8px 0 rgba(0,0,0,0.4),
+    0 40px 100px rgba(0,0,0,0.9);
+  transition: transform 0.7s cubic-bezier(.2,.8,.2,1),
+              box-shadow 0.7s ease;
+}
+
+.card:nth-child(7n+1) { --rot: -3deg; }
+.card:nth-child(7n+2) { --rot: 2deg; }
+.card:nth-child(7n+3) { --rot: -1.5deg; }
+.card:nth-child(7n+4) { --rot: 3deg; }
+.card:nth-child(7n+5) { --rot: -2.5deg; }
+.card:nth-child(7n+6) { --rot: 1deg; }
+.card:nth-child(7n+7) { --rot: -2deg; }
+
+@keyframes cardWake {
+  0%   { opacity: 0; transform: translateY(60px) rotate(var(--rot)) scale(0.92); filter: blur(14px); }
+  60%  { opacity: 0.9; filter: blur(2px); }
+  100% { opacity: 1; transform: translateY(0) rotate(0) scale(1); filter: blur(0); }
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255,43,43,0.25) 48%,
+    rgba(255,43,43,0.1) 52%,
+    transparent 70%
+  );
+  transform: translateX(-150%) skewX(-10deg);
+  transition: transform 1.4s cubic-bezier(.2,.8,.2,1);
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.card:hover::after {
+  transform: translateX(150%) skewX(-10deg);
+}
+
+.card:hover {
+  transform: translateY(-12px) rotateY(-3deg) rotateX(2deg) scale(1.02);
+  box-shadow:
+    0 40px 80px rgba(0,0,0,0.95),
+    0 0 0 1px rgba(255,43,43,0.5),
+    0 0 80px rgba(255,43,43,0.25),
+    0 0 120px rgba(139,26,26,0.3);
+}
+
+.card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  filter:
+    sepia(0.25)
+    saturate(0.85)
+    contrast(1.12)
+    brightness(0.88)
+    hue-rotate(-10deg);
+  transition: filter 1s ease, transform 1.2s cubic-bezier(.2,.8,.2,1);
+}
+
+.card:hover img {
+  filter:
+    sepia(0.1)
+    saturate(1.1)
+    contrast(1.15)
+    brightness(1)
+    hue-rotate(-3deg);
+  transform: scale(1.05);
+}
+
+.card.shiver {
+  animation: shiver 0.4s ease;
+}
+
+@keyframes shiver {
+  0%, 100% { transform: translate(0, 0); }
+  20%      { transform: translate(-3px, 1px) rotate(-0.5deg); }
+  40%      { transform: translate(2px, -2px) rotate(0.4deg); }
+  60%      { transform: translate(-2px, 2px) rotate(-0.3deg); }
+  80%      { transform: translate(1px, -1px) rotate(0.2deg); }
+}
+
+/* ============================================
+   لایت‌باکس با پرده واقعی اتاق سرخ
+   ============================================ */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  overflow: hidden;
+}
+
+.lightbox.open {
+  display: flex;
+  animation: lbIn 0.6s ease both;
+}
+
+@keyframes lbIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0 8vw;
+}
+
+.lightbox-frame {
+  position: relative;
+  z-index: 5;
+  line-height: 0;
+  box-shadow:
+    0 0 0 1px rgba(255,43,43,0.45),
+    0 50px 120px rgba(0,0,0,0.95),
+    0 0 120px rgba(255,43,43,0.35),
+    0 0 200px rgba(139,26,26,0.5);
+  animation: frameIn 0.9s cubic-bezier(.2,.8,.2,1) 0.4s both;
+  max-width: 84vw;
+  max-height: 84vh;
+}
+
+@keyframes frameIn {
+  from { transform: scale(0.88) translateY(20px); opacity: 0; filter: blur(10px); }
+  to   { transform: scale(1) translateY(0); opacity: 1; filter: blur(0); }
+}
+
+.lightbox-frame img {
+  display: block;
+  max-width: 84vw;
+  max-height: 84vh;
+  width: auto;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  filter: sepia(0.18) saturate(1) contrast(1.1) hue-rotate(-8deg);
+}
+
+.curtain {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 42vw;
+  z-index: 3;
+  pointer-events: auto;
+  cursor: pointer;
+  opacity: 0;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255,255,255,0.10) 0px,
+      rgba(255,255,255,0.10) 2px,
+      rgba(0,0,0,0.55) 22px,
+      rgba(0,0,0,0.75) 45px,
+      rgba(255,255,255,0.06) 68px,
+      rgba(0,0,0,0.5) 90px
+    ),
+    linear-gradient(
+      180deg,
+      #4a0808 0%,
+      #8b1a1a 25%,
+      #c41e1e 50%,
+      #8b1a1a 75%,
+      #4a0808 100%
+    );
+  background-blend-mode: overlay, normal;
+  filter: drop-shadow(0 0 40px rgba(0,0,0,0.95));
+}
+
+.curtain::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 24px;
+  background: linear-gradient(
+    to right,
+    rgba(0,0,0,0.85),
+    rgba(0,0,0,0.4) 40%,
+    transparent
+  );
+}
+
+.curtain-left {
+  left: 0;
+  transform: translateX(-100%);
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+.curtain-left::before {
+  right: 0;
+  transform: scaleX(-1);
+}
+
+.curtain-right {
+  right: 0;
+  transform: translateX(100%);
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+.curtain-right::before {
+  left: 0;
+}
+
+.lightbox.open .curtain-left {
+  animation: curtainInLeft 1.4s cubic-bezier(.2,.9,.2,1) 0.05s both,
+             curtainSwayLeft 7s ease-in-out 1.5s infinite alternate;
+}
+
+.lightbox.open .curtain-right {
+  animation: curtainInRight 1.4s cubic-bezier(.2,.9,.2,1) 0.05s both,
+             curtainSwayRight 7s ease-in-out 1.5s infinite alternate;
+}
+
+.lightbox.closing .curtain-left {
+  animation: curtainOutLeft 0.8s cubic-bezier(.6,0,.8,.2) both;
+}
+
+.lightbox.closing .curtain-right {
+  animation: curtainOutRight 0.8s cubic-bezier(.6,0,.8,.2) both;
+}
+
+.lightbox.closing .lightbox-frame {
+  animation: frameOut 0.6s cubic-bezier(.6,0,.8,.2) both;
+}
+
+.lightbox.closing .close {
+  animation: closeFade 0.4s ease both;
+}
+
+@keyframes curtainInLeft {
+  0%   { transform: translateX(-100%); opacity: 0; }
+  100% { transform: translateX(0);     opacity: 1; }
+}
+
+@keyframes curtainInRight {
+  0%   { transform: translateX(100%); opacity: 0; }
+  100% { transform: translateX(0);    opacity: 1; }
+}
+
+@keyframes curtainOutLeft {
+  0%   { transform: translateX(0);     opacity: 1; }
+  100% { transform: translateX(-100%); opacity: 1; }
+}
+
+@keyframes curtainOutRight {
+  0%   { transform: translateX(0);    opacity: 1; }
+  100% { transform: translateX(100%); opacity: 1; }
+}
+
+@keyframes frameOut {
+  0%   { transform: scale(1); opacity: 1; filter: blur(0); }
+  100% { transform: scale(0.85); opacity: 0; filter: blur(10px); }
+}
+
+@keyframes closeFade {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes curtainSwayLeft {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-14px); }
+}
+
+@keyframes curtainSwayRight {
+  from { transform: translateX(0); }
+  to   { transform: translateX(14px); }
+}
+
+.close {
+  position: absolute;
+  top: 24px;
+  left: 30px;
+  font-size: 2.6rem;
+  color: var(--bone-aged);
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.3s, transform 0.5s cubic-bezier(.2,.8,.2,1);
+  user-select: none;
+  z-index: 10;
+  text-shadow: 0 0 15px var(--neon-red), 0 0 30px rgba(255,43,43,0.35);
+}
+
+.close:hover {
+  color: var(--neon-red);
+  transform: rotate(180deg) scale(1.2);
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 600px) {
+  .gallery { padding: 20px 20px 80px; gap: 40px; }
+
+  .floating-eye { display: none; }
+  .title { letter-spacing: 3px; font-weight: 400; }
+
+  body::before {
+    background-size: 70px 70px;
+    transform: perspective(500px) rotateX(55deg) scale(1.8);
+    opacity: 0.4;
+  }
+
+  .stage { padding: 0 4vw; }
+  .curtain { width: 38vw; }
+  .curtain::before { width: 16px; }
+
+  .lightbox-frame { max-width: 92vw; max-height: 70vh; }
+  .lightbox-frame img { max-width: 92vw; max-height: 70vh; }
+  .close { top: 14px; left: 16px; font-size: 2rem; }
+}
