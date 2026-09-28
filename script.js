@@ -1,92 +1,142 @@
 /* ============================================
-   Dream of Void — Dynamic Gallery
-   اول از images.json می‌خونه، اگه نشد از لیست پیش‌فرض
+   Dream of Void — Full Script
    ============================================ */
 
 const galleryEl = document.getElementById('gallery');
+const tabsEl = document.getElementById('tabs');
 const lightbox = document.getElementById('lightbox');
 const lightboxImg = document.getElementById('lightbox-img');
 const closeBtn = document.querySelector('.close');
 const curtains = document.querySelectorAll('.curtain');
 
-const BASE_PATH = "images/";   // مسیر پوشه‌ی عکس‌ها
+const contactSection = document.getElementById('contact');
+const contactBg = document.getElementById('contact-bg');
+const gameEl = document.getElementById('game');
+const gameChoicesEl = document.getElementById('game-choices');
+const gameResultEl = document.getElementById('game-result');
+const gameScoreEl = document.getElementById('game-score');
+const contactInfoEl = document.getElementById('contact-info');
 
-/* ---------- لیست پیش‌فرض (اگه fetch کار نکرد) ---------- */
-const FALLBACK_LIST = [
-  "portrait1.jpg",
-  "portrait2.jpg",
-  "portrait3.jpg",
-  "portrait4.jpg",
-  "portrait5.jpg",
-  "portrait6.jpg",
-  "portrait7.jpg",
-  "Easy Life.jpg",
-  "Gav.jpg",
-  "Gorb.jpg",
-  "Gorznam.jpg",
-  "Kamal.jpg",
-];
+const BASE_PATH = "images/";
+
+const FALLBACK_DATA = {
+  bw:      ["1.webp", "2.webp", "3.webp","4.webp", "5.webp"],
+  colored: ["1.webp", "2.webp", "3.webp","4.webp", "5.webp", "6.webp"],
+  digital: ["1.webp", "2.webp", "3.webp","4.webp", "5.webp", "6.webp","7.webp", "8.webp"]
+};
+
+const CATEGORY_LABELS = {
+  bw: "B&W",
+  colored: "Colored",
+  digital: "Digital",
+  contact: "Contact Me"
+};
 
 let isClosing = false;
+let isRendering = false;
+let galleryData = { bw: [], colored: [], digital: [] };
 
-/* ---------- خواندن لیست عکس‌ها از images.json ---------- */
-async function loadImageList() {
+let wins = 0;
+const WINS_NEEDED = 3;
+let gameOver = false;
+
+/* ---------- Load images.json ---------- */
+async function loadGalleryData() {
   try {
-    const res = await fetch('images.json', { cache: 'no-cache' });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(function() { controller.abort(); }, 1500);
+
+    const res = await fetch('images.json', {
+      cache: 'no-cache',
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
     if (!res.ok) throw new Error('images.json not found');
-    const list = await res.json();
-    if (!Array.isArray(list) || list.length === 0) throw new Error('empty list');
-    console.log('✅ لیست از images.json خونده شد:', list.length, 'عکس');
-    return list;
+    const data = await res.json();
+
+    galleryData = {
+      bw:      Array.isArray(data.bw)      ? data.bw      : [],
+      colored: Array.isArray(data.colored) ? data.colored : [],
+      digital: Array.isArray(data.digital) ? data.digital : []
+    };
+
+    console.log('Loaded from images.json:', {
+      bw: galleryData.bw.length,
+      colored: galleryData.colored.length,
+      digital: galleryData.digital.length
+    });
+
+    return galleryData;
   } catch (err) {
-    console.warn('⚠️ images.json لود نشد. از لیست پیش‌فرض استفاده می‌کنم.', err.message);
-    return FALLBACK_LIST;
+    console.warn('images.json failed (' + err.message + '). Using fallback.');
+    galleryData = {
+      bw:      FALLBACK_DATA.bw.slice(),
+      colored: FALLBACK_DATA.colored.slice(),
+      digital: FALLBACK_DATA.digital.slice()
+    };
+    return galleryData;
   }
 }
 
-/* ---------- ساخت مسیر نهایی ---------- */
-function resolvePath(name) {
+/* ---------- Path ---------- */
+function resolvePath(category, name) {
   if (name.startsWith('http://') || name.startsWith('https://')) return name;
   if (name.includes('/')) return name;
-  return BASE_PATH + name;
+  return BASE_PATH + category + "/" + name;
 }
 
-/* ---------- ساخت کارت ---------- */
-function createCard(src, index) {
+/* ---------- Create card ---------- */
+function createCard(src, category, index) {
   const figure = document.createElement('figure');
   figure.className = 'card';
-  figure.style.animationDelay = `${0.1 + index * 0.12}s`;
+  figure.dataset.cat = category;
+  figure.style.animationDelay = (0.05 + index * 0.08) + "s";
 
   const img = document.createElement('img');
   img.src = src;
-  img.alt = `artwork ${index + 1}`;
+  img.alt = (CATEGORY_LABELS[category] || category) + " " + (index + 1);
   img.loading = 'lazy';
 
-  img.addEventListener('error', () => {
-    console.warn(`❌ عکس لود نشد: ${src}`);
-    figure.remove();
+  img.addEventListener('error', function() {
+    console.warn("Image failed: " + src);
+    figure.style.display = 'none';
   });
 
   figure.appendChild(img);
   return figure;
 }
 
-/* ---------- پر کردن گالری ---------- */
-async function renderGallery() {
-  galleryEl.innerHTML = '';
-  const list = await loadImageList();
+/* ---------- Render gallery ---------- */
+function renderGallery(cat) {
+  if (isRendering) return;
+  isRendering = true;
 
-  list.forEach((name, i) => {
-    galleryEl.appendChild(createCard(resolvePath(name), i));
+  galleryEl.innerHTML = '';
+  const list = galleryData[cat] || [];
+
+  if (list.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.textContent = 'empty';
+    galleryEl.appendChild(empty);
+    isRendering = false;
+    return;
+  }
+
+  list.forEach(function(name, i) {
+    const src = resolvePath(cat, name);
+    galleryEl.appendChild(createCard(src, cat, i));
   });
 
   attachCardListeners();
+  isRendering = false;
 }
 
-/* ---------- وصل کردن کلیک کارت‌ها ---------- */
+/* ---------- Card click ---------- */
 function attachCardListeners() {
-  document.querySelectorAll('.card').forEach(card => {
-    card.addEventListener('click', () => {
+  document.querySelectorAll('.card').forEach(function(card) {
+    card.addEventListener('click', function() {
       const img = card.querySelector('img');
       if (!img) return;
       lightboxImg.src = img.src;
@@ -99,13 +149,179 @@ function attachCardListeners() {
   });
 }
 
-/* ---------- بستن لایت‌باکس ---------- */
+/* ---------- Theme ---------- */
+function applyTheme(cat) {
+  document.body.classList.remove('theme-bw', 'theme-colored', 'theme-digital', 'theme-contact');
+  if (cat === 'contact') {
+    document.body.classList.add('theme-contact');
+  } else {
+    document.body.classList.add('theme-' + cat);
+  }
+  console.log('Theme applied:', cat);
+}
+
+/* ---------- Show sections ---------- */
+function showGallery(cat) {
+  contactSection.classList.remove('active');
+  galleryEl.style.display = '';
+  renderGallery(cat);
+}
+
+function showContact() {
+  galleryEl.innerHTML = '';
+  galleryEl.style.display = 'none';
+  contactSection.classList.add('active');
+  buildFloatingBackground();
+  resetGame();
+}
+
+/* ---------- Floating background ---------- */
+function buildFloatingBackground() {
+  contactBg.innerHTML = '';
+
+  const allImages = [];
+  ['bw', 'colored', 'digital'].forEach(function(cat) {
+    (galleryData[cat] || []).forEach(function(name) {
+      allImages.push(resolvePath(cat, name));
+    });
+  });
+
+  if (allImages.length === 0) {
+    ['bw', 'colored', 'digital'].forEach(function(cat) {
+      (FALLBACK_DATA[cat] || []).forEach(function(name) {
+        allImages.push(resolvePath(cat, name));
+      });
+    });
+  }
+
+  const shuffled = allImages.sort(function() { return 0.5 - Math.random(); });
+  const picked = shuffled.slice(0, 6);
+
+  picked.forEach(function(src) {
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = '';
+    img.loading = 'lazy';
+    img.addEventListener('error', function() { img.remove(); });
+    contactBg.appendChild(img);
+  });
+}
+
+/* ---------- Game ---------- */
+const CHOICES = ['rock', 'paper', 'scissors'];
+const BEATS = {
+  rock: 'scissors',
+  paper: 'rock',
+  scissors: 'paper'
+};
+
+function resetGame() {
+  wins = 0;
+  gameOver = false;
+  gameEl.classList.remove('hidden');
+  contactInfoEl.classList.remove('visible');
+  gameResultEl.innerHTML = '';
+  gameScoreEl.textContent = 'Wins: 0 / ' + WINS_NEEDED;
+
+  document.querySelectorAll('.choice').forEach(function(btn) {
+    btn.disabled = false;
+  });
+}
+
+function computerChoice() {
+  return CHOICES[Math.floor(Math.random() * 3)];
+}
+
+function playRound(player) {
+  if (gameOver) return;
+
+  const computer = computerChoice();
+  let outcome;
+
+  if (player === computer) {
+    outcome = 'tie';
+  } else if (BEATS[player] === computer) {
+    outcome = 'win';
+    wins++;
+  } else {
+    outcome = 'lose';
+  }
+
+  const playerLabel = player.toUpperCase();
+  const compLabel = computer.toUpperCase();
+
+  let outcomeText = '';
+  let outcomeClass = '';
+
+  if (outcome === 'win') {
+    outcomeText = '— you win —';
+    outcomeClass = 'win';
+  } else if (outcome === 'lose') {
+    outcomeText = '— you lose —';
+    outcomeClass = 'lose';
+  } else {
+    outcomeText = '— tie —';
+    outcomeClass = 'tie';
+  }
+
+  gameResultEl.innerHTML =
+    '<div class="line">You: ' + playerLabel + ' &nbsp; Computer: ' + compLabel + '</div>' +
+    '<div class="line ' + outcomeClass + '">' + outcomeText + '</div>';
+
+  gameScoreEl.textContent = 'Wins: ' + wins + ' / ' + WINS_NEEDED;
+
+  if (wins >= WINS_NEEDED) {
+    setTimeout(function() {
+      gameOver = true;
+      gameResultEl.innerHTML += '<div class="line win">ACCESS GRANTED</div>';
+
+      document.querySelectorAll('.choice').forEach(function(btn) {
+        btn.disabled = true;
+      });
+
+      setTimeout(function() {
+        gameEl.classList.add('hidden');
+        contactInfoEl.classList.add('visible');
+      }, 1800);
+    }, 900);
+  }
+}
+
+gameChoicesEl.addEventListener('click', function(e) {
+  const btn = e.target.closest('.choice');
+  if (!btn) return;
+  playRound(btn.dataset.choice);
+});
+
+/* ---------- Tabs ---------- */
+tabsEl.addEventListener('click', function(e) {
+  const tab = e.target.closest('.tab');
+  if (!tab) return;
+
+  if (tab.classList.contains('active')) return;
+
+  document.querySelectorAll('.tab').forEach(function(t) {
+    t.classList.remove('active');
+  });
+  tab.classList.add('active');
+
+  const cat = tab.dataset.cat;
+  applyTheme(cat);
+
+  if (cat === 'contact') {
+    showContact();
+  } else {
+    showGallery(cat);
+  }
+});
+
+/* ---------- Close lightbox ---------- */
 function closeLightbox() {
   if (isClosing || !lightbox.classList.contains('open')) return;
   isClosing = true;
   lightbox.classList.add('closing');
 
-  setTimeout(() => {
+  setTimeout(function() {
     lightbox.classList.remove('open');
     lightbox.classList.remove('closing');
     document.body.style.overflow = '';
@@ -113,36 +329,38 @@ function closeLightbox() {
   }, 800);
 }
 
-closeBtn.addEventListener('click', e => {
+closeBtn.addEventListener('click', function(e) {
   e.stopPropagation();
   closeLightbox();
 });
 
-curtains.forEach(curtain => {
-  curtain.addEventListener('click', e => {
+curtains.forEach(function(curtain) {
+  curtain.addEventListener('click', function(e) {
     e.stopPropagation();
     closeLightbox();
   });
 });
 
-lightbox.addEventListener('click', e => {
+lightbox.addEventListener('click', function(e) {
   if (e.target === lightbox) closeLightbox();
 });
 
-document.addEventListener('keydown', e => {
+document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeLightbox();
 });
 
 const frame = document.querySelector('.lightbox-frame');
 if (frame) {
-  frame.addEventListener('click', e => e.stopPropagation());
+  frame.addEventListener('click', function(e) {
+    e.stopPropagation();
+  });
 }
 
-/* ---------- پارالاکس ---------- */
+/* ---------- Parallax ---------- */
 let mouseX = 0, mouseY = 0;
 let currentX = 0, currentY = 0;
 
-document.addEventListener('mousemove', e => {
+document.addEventListener('mousemove', function(e) {
   mouseX = (e.clientX / window.innerWidth  - 0.5) * 2;
   mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
 });
@@ -151,30 +369,74 @@ function animateParallax() {
   currentX += (mouseX - currentX) * 0.04;
   currentY += (mouseY - currentY) * 0.04;
 
-  document.querySelectorAll('.floating-eye').forEach((eye, i) => {
+  document.querySelectorAll('.floating-eye').forEach(function(eye, i) {
     const depth = (i + 1) * 8;
-    eye.style.marginLeft = `${currentX * depth}px`;
-    eye.style.marginTop  = `${currentY * depth}px`;
+    eye.style.marginLeft = (currentX * depth) + "px";
+    eye.style.marginTop  = (currentY * depth) + "px";
   });
 
   const fog = document.querySelector('.fog');
   if (fog) {
-    fog.style.transform = `translate(${currentX * 20}px, ${currentY * 20}px)`;
+    fog.style.transform = "translate(" + (currentX * 20) + "px, " + (currentY * 20) + "px)";
   }
 
   requestAnimationFrame(animateParallax);
 }
 animateParallax();
 
-/* ---------- لرزش تصادفی کارت‌ها ---------- */
-setInterval(() => {
+/* ---------- Random shiver ---------- */
+setInterval(function() {
   const cards = document.querySelectorAll('.card');
   if (cards.length === 0) return;
   const randomCard = cards[Math.floor(Math.random() * cards.length)];
   if (!randomCard || randomCard.classList.contains('shiver')) return;
   randomCard.classList.add('shiver');
-  setTimeout(() => randomCard.classList.remove('shiver'), 400);
-}, 6000);
+  setTimeout(function() {
+    randomCard.classList.remove('shiver');
+  }, 600);
+}, 25000);
 
-/* ---------- راه‌اندازی ---------- */
-renderGallery();
+/* ---------- Init ---------- */
+(async function init() {
+  await loadGalleryData();
+  applyTheme('bw');
+  renderGallery('bw');
+
+  await waitForImages();
+  hideLoader();
+})();
+
+function waitForImages() {
+  return new Promise(function(resolve) {
+    const imgs = document.querySelectorAll('.gallery img');
+    if (imgs.length === 0) return resolve();
+
+    let loaded = 0;
+    const total = imgs.length;
+
+    function check() {
+      loaded++;
+      if (loaded >= total) resolve();
+    }
+
+    imgs.forEach(function(img) {
+      if (img.complete) {
+        check();
+      } else {
+        img.addEventListener('load', check, { once: true });
+        img.addEventListener('error', check, { once: true });
+      }
+    });
+
+    setTimeout(resolve, 2500);
+  });
+}
+
+function hideLoader() {
+  const loader = document.getElementById('loader');
+  if (loader) {
+    setTimeout(function() {
+      loader.classList.add('hidden');
+    }, 300);
+  }
+}
