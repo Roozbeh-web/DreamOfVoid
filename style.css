@@ -1224,3 +1224,88 @@ body::after {
 
   .contact-bg img { width: 140px; height: 105px; }
 }
+
+/* ============================================
+   MOBILE PERFORMANCE — بهینه‌سازی برای موبایل
+   ============================================ */
+
+@media (max-width: 900px) {
+
+  /* ۱. حذف blur از مه — سنگین‌ترین چیز روی موبایل */
+  .fog {
+    filter: blur(20px) !important;
+    opacity: 0.5 !important;
+    animation: none !important;
+  }
+
+  /* ۲. حذف دانه‌دانگی متحرک — گرافیک موبایل رو می‌خوره */
+  .grain {
+    animation: none !important;
+    opacity: 0.08 !important;
+  }
+
+  /* ۳. حذف اسکن‌لاینز متحرک */
+  .scanlines {
+    animation: none !important;
+    opacity: 0.4 !important;
+  }
+
+  /* ۴. چشم‌های شناور رو کلاً حذف کن */
+  .floating-eye {
+    display: none !important;
+  }
+
+  /* ۵. کف شطرنجی رو ساده‌تر کن (perspective کمتر) */
+  body::before {
+    transform: perspective(400px) rotateX(40deg) scale(1.6);
+    background-size: 70px 70px;
+    opacity: 0.35;
+    animation: none !important;
+  }
+
+  /* ۶. کارت‌ها ساده‌تر وارد بشن (بدون blur) */
+  @keyframes cardWake {
+    0%   { opacity: 0; transform: translateY(30px) scale(0.96); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* ۷. هاور کارت‌ها ساده‌تر */
+  .card:hover {
+    transform: translateY(-6px) scale(1.01);
+  }
+
+  .card:hover img {
+    transform: scale(1.02);
+  }
+
+  /* ۸. backdrop-filter حذف کن — GPU killer */
+  .tab,
+  .choice,
+  .info-item,
+  .close {
+    backdrop-filter: none !important;
+  }
+
+  /* ۹. drop-shadow پرده‌ها رو کم کن */
+  .curtain {
+    filter: drop-shadow(0 0 20px rgba(0,0,0,0.8)) !important;
+  }
+
+  /* ۱۰. انیمیشن پرده‌ها کوتاه‌تر */
+  .lightbox.open .curtain-left,
+  .lightbox.open .curtain-right {
+    animation-duration: 0.8s, 10s;
+  }
+
+  /* ۱۱. کارت‌ها سایه‌ی ساده‌تر */
+  .card {
+    box-shadow:
+      0 10px 30px rgba(0,0,0,0.6),
+      0 0 0 1px rgba(255,255,255,0.1) !important;
+  }
+
+  /* ۱۲. shiver خاموش کن روی موبایل */
+  .card.shiver {
+    animation: none !important;
+  }
+}
