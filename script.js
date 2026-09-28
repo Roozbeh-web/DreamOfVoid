@@ -384,17 +384,20 @@ function animateParallax() {
 }
 animateParallax();
 
-/* ---------- Random shiver ---------- */
-setInterval(function() {
-  const cards = document.querySelectorAll('.card');
-  if (cards.length === 0) return;
-  const randomCard = cards[Math.floor(Math.random() * cards.length)];
-  if (!randomCard || randomCard.classList.contains('shiver')) return;
-  randomCard.classList.add('shiver');
-  setTimeout(function() {
-    randomCard.classList.remove('shiver');
-  }, 600);
-}, 25000);
+const isMobile = window.matchMedia('(max-width: 900px)').matches;
+
+if (!isMobile) {
+  setInterval(function() {
+    const cards = document.querySelectorAll('.card');
+    if (cards.length === 0) return;
+    const randomCard = cards[Math.floor(Math.random() * cards.length)];
+    if (!randomCard || randomCard.classList.contains('shiver')) return;
+    randomCard.classList.add('shiver');
+    setTimeout(function() {
+      randomCard.classList.remove('shiver');
+    }, 600);
+  }, 25000);
+}
 
 /* ---------- Init ---------- */
 (async function init() {
