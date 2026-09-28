@@ -1,21 +1,20 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dream of Void</title>
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;700&family=Vazirmatn:wght@300;400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
 </head>
-<body>
+<body class="theme-bw">
 
-  <!-- لایه‌های خواب -->
   <div class="grain"></div>
   <div class="vignette"></div>
   <div class="fog"></div>
   <div class="scanlines"></div>
+  <div class="digital-grid"></div>
 
-  <!-- چشم‌های شناور پس‌زمینه -->
   <div class="floating-eye eye-1"></div>
   <div class="floating-eye eye-2"></div>
   <div class="floating-eye eye-3"></div>
@@ -24,20 +23,82 @@
     <h1 class="title" data-text="Dream of Void">Dream of Void</h1>
   </header>
 
-  <!-- گالری به صورت داینامیک پر می‌شه -->
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-cat="bw">B&amp;W</button>
+    <button class="tab" data-cat="colored">Colored</button>
+    <button class="tab" data-cat="digital">Digital</button>
+    <button class="tab" data-cat="contact">Contact Me</button>
+  </nav>
+
   <main class="gallery" id="gallery"></main>
 
-  <div class="lightbox" id="lightbox">
-    <div class="stage">
-      <div class="curtain curtain-left"><div class="pleats"></div></div>
-      <div class="curtain curtain-right"><div class="pleats"></div></div>
+  <section class="contact" id="contact">
+    <div class="contact-bg" id="contact-bg"></div>
 
-      <div class="lightbox-frame">
-        <img id="lightbox-img" src="" alt="" />
+    <div class="game" id="game">
+      <h2 class="game-title">Win the game, then you can contact me</h2>
+      <p class="game-subtitle">Choose your weapon</p>
+
+      <div class="game-choices" id="game-choices">
+        <button class="choice" data-choice="rock">
+          <span class="choice-icon">🪨</span>
+          <span class="choice-label">Rock</span>
+        </button>
+        <button class="choice" data-choice="paper">
+          <span class="choice-icon">📄</span>
+          <span class="choice-label">Paper</span>
+        </button>
+        <button class="choice" data-choice="scissors">
+          <span class="choice-icon">✂️</span>
+          <span class="choice-label">Scissors</span>
+        </button>
       </div>
+
+      <div class="game-result" id="game-result"></div>
+      <div class="game-score" id="game-score">Wins: 0 / 3</div>
+    </div>
+
+    <div class="contact-info" id="contact-info">
+      <h2 class="info-title">You found me</h2>
+      <p class="info-subtitle">The owls are not what they seem</p>
+
+      <div class="info-list">
+        <div class="info-item">
+          <span class="info-label">Email</span>
+          <span class="info-value">roozbeh279@gmail.com</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Instagram</span>
+          <span class="info-value">@roozeibeh</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Telegram</span>
+          <span class="info-value">@wabbajack7</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Location</span>
+          <span class="info-value">Rasht, Iran</span>
+        </div>
+      </div>
+
+      <p class="info-footer">... meanwhile ...</p>
+    </div>
+  </section>
+
+  <div class="lightbox" id="lightbox">
+    <div class="curtain curtain-left"></div>
+    <div class="curtain curtain-right"></div>
+
+    <div class="lightbox-frame">
+      <img id="lightbox-img" src="" alt="" />
     </div>
 
     <span class="close">&times;</span>
+  </div>
+
+  <div class="loader" id="loader">
+    <div class="loader-text">Dream of Void</div>
+    <div class="loader-bar"><span></span></div>
   </div>
 
   <script src="script.js"></script>
