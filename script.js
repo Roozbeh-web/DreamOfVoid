@@ -1,5 +1,6 @@
 /* ============================================
    Dream of Void — Dynamic Categorized Gallery
+   با تب Contact و بازی سنگ کاغذ قیچی
    ============================================ */
 
 const galleryEl = document.getElementById('gallery');
@@ -9,26 +10,41 @@ const lightboxImg = document.getElementById('lightbox-img');
 const closeBtn = document.querySelector('.close');
 const curtains = document.querySelectorAll('.curtain');
 
+/* Contact elements */
+const contactSection = document.getElementById('contact');
+const contactBg = document.getElementById('contact-bg');
+const gameEl = document.getElementById('game');
+const gameChoicesEl = document.getElementById('game-choices');
+const gameResultEl = document.getElementById('game-result');
+const gameScoreEl = document.getElementById('game-score');
+const contactInfoEl = document.getElementById('contact-info');
+
 const BASE_PATH = "images/";
 
 /* isMobile بالای فایل — قبل از هر استفاده‌ای */
 const isMobile = window.matchMedia('(max-width: 900px)').matches;
 
 const FALLBACK_DATA = {
-  bw:      ["1.webp", "2.webp", "3.webp", "4.webp", "5.webp"],
-  colored: ["1.webp", "2.webp", "3.webp","4.webp", "5.webp", "6.webp"],
-  digital: ["1.webp", "2.webp", "3.webp", "4.webp","5.webp", "6.webp", "7.webp"]
+  bw:      ["1.webp", "2.webp", "3.webp"],
+  colored: ["1.webp", "2.webp", "3.webp"],
+  digital: ["1.webp", "2.webp", "3.webp"]
 };
 
 const CATEGORY_LABELS = {
   bw: "B&W",
   colored: "Colored",
-  digital: "Digital"
+  digital: "Digital",
+  contact: "Contact Me"
 };
 
 let isClosing = false;
 let isRendering = false;
 let galleryData = { bw: [], colored: [], digital: [] };
+
+/* Game state */
+let wins = 0;
+const WINS_NEEDED = 3;
+let gameOver = false;
 
 /* ============================================
    Load images.json
@@ -163,6 +179,145 @@ function applyTheme(cat) {
 }
 
 /* ============================================
+   Show / Hide sections
+   ============================================ */
+function showGallery(cat) {
+  contactSection.classList.remove('active');
+  galleryEl.style.display = '';
+  renderGallery(cat);
+}
+
+function showContact() {
+  galleryEl.innerHTML = '';
+  galleryEl.style.display = 'none';
+  contactSection.classList.add('active');
+  buildFloatingBackground();
+  resetGame();
+}
+
+/* ============================================
+   Floating background images (Contact)
+   ============================================ */
+function buildFloatingBackground() {
+  contactBg.innerHTML = '';
+
+  const allImages = [];
+  ['bw', 'colored', 'digital'].forEach(function(cat) {
+    (galleryData[cat] || []).forEach(function(name) {
+      allImages.push(resolvePath(cat, name));
+    });
+  });
+
+  if (allImages.length === 0) {
+    ['bw', 'colored', 'digital'].forEach(function(cat) {
+      (FALLBACK_DATA[cat] || []).forEach(function(name) {
+        allImages.push(resolvePath(cat, name));
+      });
+    });
+  }
+
+  const shuffled = allImages.sort(function() { return 0.5 - Math.random(); });
+  const picked = shuffled.slice(0, 6);
+
+  picked.forEach(function(src) {
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = '';
+    img.loading = 'lazy';
+    img.addEventListener('error', function() { img.remove(); });
+    contactBg.appendChild(img);
+  });
+}
+
+/* ============================================
+   Rock Paper Scissors Game
+   ============================================ */
+const CHOICES = ['rock', 'paper', 'scissors'];
+const BEATS = {
+  rock: 'scissors',
+  paper: 'rock',
+  scissors: 'paper'
+};
+
+function resetGame() {
+  wins = 0;
+  gameOver = false;
+  gameEl.classList.remove('hidden');
+  contactInfoEl.classList.remove('visible');
+  gameResultEl.innerHTML = '';
+  gameScoreEl.textContent = 'Wins: 0 / ' + WINS_NEEDED;
+
+  document.querySelectorAll('.choice').forEach(function(btn) {
+    btn.disabled = false;
+  });
+}
+
+function computerChoice() {
+  return CHOICES[Math.floor(Math.random() * 3)];
+}
+
+function playRound(player) {
+  if (gameOver) return;
+
+  const computer = computerChoice();
+  let outcome;
+
+  if (player === computer) {
+    outcome = 'tie';
+  } else if (BEATS[player] === computer) {
+    outcome = 'win';
+    wins++;
+  } else {
+    outcome = 'lose';
+  }
+
+  const playerLabel = player.toUpperCase();
+  const compLabel = computer.toUpperCase();
+
+  let outcomeText = '';
+  let outcomeClass = '';
+
+  if (outcome === 'win') {
+    outcomeText = '— you win —';
+    outcomeClass = 'win';
+  } else if (outcome === 'lose') {
+    outcomeText = '— you lose —';
+    outcomeClass = 'lose';
+  } else {
+    outcomeText = '— tie —';
+    outcomeClass = 'tie';
+  }
+
+  gameResultEl.innerHTML =
+    '<div class="line">You: ' + playerLabel + ' &nbsp; Computer: ' + compLabel + '</div>' +
+    '<div class="line ' + outcomeClass + '">' + outcomeText + '</div>';
+
+  gameScoreEl.textContent = 'Wins: ' + wins + ' / ' + WINS_NEEDED;
+
+  if (wins >= WINS_NEEDED) {
+    setTimeout(function() {
+      gameOver = true;
+      gameResultEl.innerHTML += '<div class="line win">ACCESS GRANTED</div>';
+
+      document.querySelectorAll('.choice').forEach(function(btn) {
+        btn.disabled = true;
+      });
+
+      setTimeout(function() {
+        gameEl.classList.add('hidden');
+        contactInfoEl.classList.add('visible');
+      }, 1800);
+    }, 900);
+  }
+}
+
+gameChoicesEl.addEventListener('click', function(e) {
+  const btn = e.target.closest('.choice');
+  if (!btn) return;
+  playRound(btn.dataset.choice);
+});
+
+/* ============================================
    Tabs
    ============================================ */
 tabsEl.addEventListener('click', function(e) {
@@ -177,7 +332,12 @@ tabsEl.addEventListener('click', function(e) {
 
   const cat = tab.dataset.cat;
   applyTheme(cat);
-  renderGallery(cat);
+
+  if (cat === 'contact') {
+    showContact();
+  } else {
+    showGallery(cat);
+  }
 });
 
 /* ============================================
