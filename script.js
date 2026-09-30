@@ -25,9 +25,9 @@ const BASE_PATH = "images/";
 const isMobile = window.matchMedia('(max-width: 900px)').matches;
 
 const FALLBACK_DATA = {
-  bw:      ["1.webp", "2.webp", "3.webp"],
-  colored: ["1.webp", "2.webp", "3.webp"],
-  digital: ["1.webp", "2.webp", "3.webp"]
+  bw:      ["1.webp", "2.webp", "3.webp", "4.webp", "5.webp"],
+  colored: ["1.webp", "2.webp", "3.webp","4.webp", "5.webp", "6.webp"],
+  digital: ["1.webp", "2.webp", "3.webp","4.webp","5.webp", "6.webp", "7.webp"]
 };
 
 const CATEGORY_LABELS = {
