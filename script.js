@@ -11,13 +11,13 @@ const curtains = document.querySelectorAll('.curtain');
 
 const BASE_PATH = "images/";
 
-/* ✅ isMobile این‌جا تعریف شده — قبل از هر استفاده‌ای */
+/* isMobile بالای فایل — قبل از هر استفاده‌ای */
 const isMobile = window.matchMedia('(max-width: 900px)').matches;
 
 const FALLBACK_DATA = {
-  bw:      ["1.jpg", "2.jpg", "3.jpg"],
-  colored: ["1.jpg", "2.jpg", "3.jpg"],
-  digital: ["1.jpg", "2.jpg", "3.jpg"]
+  bw:      ["1.webp", "2.webp", "3.webp"],
+  colored: ["1.webp", "2.webp", "3.webp"],
+  digital: ["1.webp", "2.webp", "3.webp"]
 };
 
 const CATEGORY_LABELS = {
